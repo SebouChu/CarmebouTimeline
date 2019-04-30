@@ -12,7 +12,6 @@
         <div class="app">
             <div id="add-form" class="hidden">
                 <form>
-                    <input type="date" placeholder="Date" id="date">
                     <input type="text" placeholder="Description" id="description">
                     <label for="typeSelection">Ajouter un élément à l'article</label>
                     <select id="typeSelection">
@@ -21,8 +20,15 @@
                         <option value="video" id="typeVideo">Vidéo</option>
                         <option value="localisation" id="typeLocalisation">Localisation</option>
                     </select>
-                    <input type="image" id="image" class="hidden">
-                    <input type="image" id="video" class="hidden">
+                    <div id="take-picture" class="hidden">
+                        <button type="button" data-source="CAMERA">Take Picture</button>
+                        <button type="button" data-source="SAVEDPHOTOALBUM">Select from Gallery</button>
+                        <img class="img-fluid" id="target-img" src="#" alt="">
+                    </div>
+                    <div id="capture-video" class="hidden">
+                        <button type="button">Capture video</button>
+                        <video src="#" controls width="250"></video>
+                    </div>
                     <input type="text" id="localisation" class="hidden">
                     <input type="submit" value="Envoyer">
                 </form>
@@ -30,18 +36,6 @@
             <div id="timeline">
                 Bonjour je suis le contenu
             </div>
-
-            <div id="take-picture">
-                <button type="button" data-source="CAMERA">Take Picture</button>
-                <button type="button" data-source="SAVEDPHOTOALBUM">Select from Gallery</button>
-                <img class="img-fluid" id="target-img" src="#" alt="">
-            </div>
-
-            <div id="capture-video">
-                <button type="button">Capture video</button>
-                <video src="#" controls width="250"></video>
-            </div>
-
             <button id="showFormButton">+</button>
         </div>
         <script type="text/javascript" src="cordova.js"></script>
