@@ -135,6 +135,8 @@ var app = {
         document.getElementById("showLocalisationButton").addEventListener("click", () => {
             showFormElement('localisation')
         });
+
+        showTimeline();
     },
 
     // deviceready Event Handler
@@ -205,6 +207,47 @@ function showFormElement(id) {
     } else {
         elem.classList.add('hidden')
     }
+}
+
+function showTimeline() {
+    let elements = [
+        {
+            titre: "banane",
+            description: "la cure de banane c'est bien",
+            image: "",
+            video: "",
+            localisation: ""
+        },
+        {
+            titre: "patate",
+            description: "la cure de patates c'est bien",
+            image: "",
+            video: "",
+            localisation: ""
+        }
+    ];
+
+    let timeline = document.getElementById("timeline");
+
+    elements.forEach((elem) => {
+        let title = document.createElement('h2');
+        title.append(elem.titre);
+        timeline.appendChild(title);
+
+        let description = document.createElement('p');
+        description.append(elem.description);
+        timeline.appendChild(description);
+
+        let image = document.createElement('img');
+        image.setAttribute('src', elem.image);
+        timeline.appendChild(image);
+
+        let video = document.createElement('video');
+        video.setAttribute('src', elem.video);
+        timeline.appendChild(video);
+
+        let localisation = document.createElement('text')
+    })
 }
 
 app.initialize();
