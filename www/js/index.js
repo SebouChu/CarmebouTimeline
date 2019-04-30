@@ -1,5 +1,4 @@
 import storageService from './services/storage.js';
-import cameraService from './services/storage.js';
 
 var app = {
     // Application Constructor
@@ -75,13 +74,27 @@ function showForm() {
 
 function chooseType() {
     let type = document.getElementById('typeSelection').value;
+    hideTypes();
+
     switch (type) {
         case "none": console.log("none"); break;
-        case "image": console.log("image"); break;
-        case "video": console.log("video"); break;
-        case "localisation": console.log("localisation"); break;
+        case "image":
+            document.getElementById("image").classList.remove('hidden');
+            break;
+        case "video":
+            document.getElementById("video").classList.remove('hidden');
+            break;
+        case "localisation":
+            document.getElementById("localisation").classList.remove('hidden');
+            break;
         default: break;
     }
+}
+
+function hideTypes() {
+    document.getElementById("image").classList.add('hidden');
+    document.getElementById("video").classList.add('hidden');
+    document.getElementById("localisation").classList.add('hidden');
 }
 
 app.initialize();
