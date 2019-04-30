@@ -1,12 +1,17 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">
         <meta name="format-detection" content="telephone=no">
         <meta name="msapplication-tap-highlight" content="no">
         <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
+        <title>CarmebouTimeline</title>
         <link rel="stylesheet" type="text/css" href="css/index.css">
-        <title>Hello World</title>
+        <link rel="stylesheet"  href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
+                                integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
+                                crossorigin=""/>
+        <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
+                integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
+                crossorigin=""></script>
     </head>
     <body>
         <div class="app">
@@ -27,6 +32,13 @@
                     <div id="capture-video" class="hidden">
                         <button type="button">Capture video</button>
                         <video src="#" controls width="250"></video>
+                    </div>
+                    <div id="geolocate-user" class="hidden">
+                      <button type="button">Geolocate me</button>
+                      <div class="geoloc-results">
+                        <p></p>
+                        <div id="map"></div>
+                      </div>
                     </div>
                     <input type="text" id="localisation" class="hidden">
                     <input type="submit" value="Envoyer">
