@@ -1,9 +1,97 @@
-import storageService from './services/storage.js';
+//   ____ _____ ___  ____      _    ____ _____
+//  / ___|_   _/ _ \|  _ \    / \  / ___| ____|
+//  \___ \ | || | | | |_) |  / _ \| |  _|  _|
+//   ___) || || |_| |  _ <  / ___ \ |_| | |___
+//  |____/ |_| \___/|_| \_\/_/   \_\____|_____|
+
+var storageService = {
+    data: null,
+
+    init: function () {
+        console.log('init storage');
+        var rawTimeline = localStorage.getItem("timeline");
+        if (rawTimeline) {
+            this.data = JSON.parse(rawTimeline);
+        } else {
+            this.data = [];
+            this.persist();
+        }
+    },
+
+    addPhoto: function () {
+        // TODO: Ajouter une photo dans le localStorage
+    },
+
+    addVideo: function () {
+        // TODO: Ajouter une vidéo dans le localStorage
+    },
+
+    addLocation: function () {
+        // TODO: Ajouter une géolocalisation dans le localStorage
+    },
+
+    addSimpleText: function () {
+        // TODO: Ajouter un texte simple dans le localStorage
+    },
+
+    addData: function (type, data) {
+        this.data.push({
+            type: type,
+            data: data,
+            createdAt: Date.now()
+        })
+    },
+
+    persist: function () {
+        localStorage.setItem("timeline", JSON.stringify(this.data));
+    }
+};
+
+//    ____    _    __  __ _____ ____      _
+//   / ___|  / \  |  \/  | ____|  _ \    / \
+//  | |     / _ \ | |\/| |  _| | |_) |  / _ \
+//  | |___ / ___ \| |  | | |___|  _ <  / ___ \
+//   \____/_/   \_\_|  |_|_____|_| \_\/_/   \_\
+
+var cameraService = {
+    takePicture: function (sourceType, callback) {
+        if (!Camera.PictureSourceType[sourceType]) {
+            return;
+        }
+
+        navigator.camera.getPicture(
+            callback,
+            this.alertError.bind(this),
+            {
+                quality: 50,
+                sourceType: Camera.PictureSourceType[sourceType],
+                destinationType: Camera.DestinationType.DATA_URL,
+                saveToPhotoAlbum: sourceType == "CAMERA"
+            }
+        );
+    },
+
+    // FIXME: A supprimer quand ça sera implémenté là où il faut
+    // displayImage: function (imageData) {
+    //     this.image.src = "data:image/jpeg;base64," + imageData;
+    // },
+
+    alertError: function(message) {
+        alert('Failed because: ' + message);
+    }
+};
+
+//      _    ____  ____  _     ___ ____    _  _____ ___ ___  _   _
+//     / \  |  _ \|  _ \| |   |_ _/ ___|  / \|_   _|_ _/ _ \| \ | |
+//    / _ \ | |_) | |_) | |    | | |     / _ \ | |  | | | | |  \| |
+//   / ___ \|  __/|  __/| |___ | | |___ / ___ \| |  | | |_| | |\  |
+//  /_/   \_\_|   |_|   |_____|___\____/_/   \_\_| |___\___/|_| \_|
 
 var app = {
     // Application Constructor
     initialize: function() {
         storageService.init();
+        document.addEventListener('deviceready', this.onDeviceReady.bind(this), false);
         document.getElementById("showFormButton").addEventListener("click", showForm);
 
         document.getElementById("typeSelection").addEventListener("change", chooseType);
@@ -14,54 +102,27 @@ var app = {
     // Bind any cordova events here. Common events are:
     // 'pause', 'resume', etc.
     onDeviceReady: function() {
-        this.receivedEvent('deviceready');
+        console.log('ready');
+        this.initCameraButtons();
     },
 
     // Update DOM on a Received Event
-    receivedEvent: function(id) {
-        var parentElement = document.getElementById(id);
-        var listeningElement = parentElement.querySelector('.listening');
-        var receivedElement = parentElement.querySelector('.received');
+    initCameraButtons: function(id) {
+        var cameraBtns = document.querySelectorAll('div#take-picture button'),
+            targetImg = document.querySelector('div#take-picture img'),
+            i;
 
-        listeningElement.setAttribute('style', 'display:none;');
-        receivedElement.setAttribute('style', 'display:block;');
-
-        console.log('Received Event: ' + id);
+        for (i = 0; i < cameraBtns.length; i += 1) {
+            cameraBtns[i].addEventListener('click', function() {
+                console.log(this);
+                var sourceType = this.getAttribute('data-source');
+                cameraService.takePicture(sourceType, function (imageData) {
+                    targetImg.src = "data:image/jpeg;base64," + imageData;
+                });
+            });
+        }
     }
 };
-
-function setLocalStorage(key, value) {
-    localStorage.setItem(key, value);
-}
-
-function getLocalStorageByKey(key) {
-    localStorage.getItem(key)
-}
-
-function cameraTakePicture() {
-    navigator.camera.getPicture(onSuccess, onFail,
-        {
-            quality: 50,
-            destinationType: Camera.DestinationType.DATA_URL
-        });
-}
-
-function cameraGetPicture() {
-    navigator.camera.getPicture(onSuccess, onFail, {
-        quality: 50,
-        destinationType: Camera.DestinationType.DATA_URL,
-        sourceType: Camera.PictureSourceType.PHOTOLIBRARY
-    });
-}
-
-function onSuccess(imageData) {
-    var image = document.getElementById('myImage');
-    image.src = "data:image/jpeg;base64," + imageData;
-}
-
-function onFail(message) {
-    alert('Failed because: ' + message);
-}
 
 function showForm() {
     let form = document.getElementById('add-form');

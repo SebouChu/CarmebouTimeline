@@ -107,3 +107,9 @@ button#showFormButton {
     bottom: 20px;
     right: 20px;
 }
+
+.img-fluid {
+  max-width: 100%;
+  width: auto;
+  height: auto;
+}

@@ -31,10 +31,15 @@
                 Bonjour je suis le contenu
             </div>
 
-            <button id = "showFormButton">+</button>
+            <div id="take-picture">
+                <button type="button" data-source="CAMERA">Take Picture</button>
+                <button type="button" data-source="SAVEDPHOTOALBUM">Select from Gallery</button>
+                <img class="img-fluid" id="target-img" src="#" alt="">
+            </div>
+
+            <button id="showFormButton">+</button>
         </div>
         <script type="text/javascript" src="cordova.js"></script>
-        <script type="module" src="js/services/storage.js"></script>
-        <script type="module" src="js/index.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
     </body>
 </html>
