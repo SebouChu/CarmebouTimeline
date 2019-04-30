@@ -60,7 +60,11 @@ function onFail(message) {
 
 function showForm() {
     let form = document.getElementById('add-form');
-    form.classList.remove('hidden');
+    if (form.classList.contains('hidden')) {
+        form.classList.remove('hidden');
+    } else {
+        form.classList.add('hidden');
+    }
 }
 
 app.initialize();
