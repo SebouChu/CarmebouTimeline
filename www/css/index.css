@@ -91,14 +91,14 @@ h1 {
     border: 1px solid white;
 }
 
-button#showFormButton {
+#showFormButton {
     width: 50px;
     height: 50px;
     border-radius: 50%;
     background-color: red;
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
+    position: sticky;
+    display: block;
+    float: right;
 }
 
 .img-fluid {
@@ -114,4 +114,25 @@ video[src="#"] {
 #map {
   width: 100%;
   height: 400px;
+}
+
+.timeline-element {
+    position: relative;
+    height: 100px;
+    margin: 20px;
+    display: block;
+    background: rgba(0, 150, 0, 0.5);
+    padding: 20px;
+    border-radius: 5px;
+}
+
+.bullet {
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    left: -10px;
+    top: 60px;
+    background: white;
+    border: 1px solid green;
+    border-radius: 50%;
 }

@@ -152,7 +152,7 @@ var app = {
             showFormElement('capture-video')
         });
         document.getElementById("showLocalisationButton").addEventListener("click", () => {
-            showFormElement('localisation')
+            showFormElement('geolocate-user')
         });
 
         showTimeline();
@@ -278,23 +278,45 @@ function showTimeline() {
     let timeline = document.getElementById("timeline");
 
     elements.forEach((elem) => {
-        let title = document.createElement('h2');
-        title.append(elem.titre);
-        timeline.appendChild(title);
+        let container = document.createElement('div');
+        container.classList.add('timeline-element');
 
-        let description = document.createElement('p');
-        description.append(elem.description);
-        timeline.appendChild(description);
+        let bullet = document.createElement('div');
+        bullet.classList.add('bullet');
+        container.appendChild(bullet);
 
-        let image = document.createElement('img');
-        image.setAttribute('src', elem.image);
-        timeline.appendChild(image);
+        if (elem.titre !== "") {
+            let title = document.createElement('h2');
+            title.append(elem.titre);
+            container.appendChild(title);
+        }
 
-        let video = document.createElement('video');
-        video.setAttribute('src', elem.video);
-        timeline.appendChild(video);
+        if (elem.description !== "") {
+            let description = document.createElement('p');
+            description.append(elem.description);
+            container.appendChild(description);
+        }
 
-        let localisation = document.createElement('text')
+        if (elem.image !== "") {
+            let image = document.createElement('img');
+            image.setAttribute('src', elem.image);
+            container.appendChild(image);
+        }
+
+        if (elem.video !== "") {
+            let video = document.createElement('video');
+            video.setAttribute('src', elem.video);
+            container.appendChild(video);
+        }
+
+        if (elem.localisation !== "") {
+            let localisation = document.createElement('text');
+            localisation.append(elem.localisation);
+            container.appendChild(localisation);
+
+        }
+
+        timeline.appendChild(container);
     })
 }
 
