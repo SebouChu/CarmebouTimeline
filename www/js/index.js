@@ -12,14 +12,17 @@ var storageService = {
         var rawTimeline = localStorage.getItem("timeline");
         if (rawTimeline) {
             this.data = JSON.parse(rawTimeline);
+            this.data.forEach(item => {
+                item.createdAt = new Date(item.createdAt);
+            });
         } else {
             this.data = [];
             this.persist();
         }
     },
 
-    addPhoto: function () {
-        // TODO: Ajouter une photo dans le localStorage
+    addPhoto: function (imagePath) {
+        this.addData('photo', { path: imagePath });
     },
 
     addVideo: function () {
@@ -38,8 +41,10 @@ var storageService = {
         this.data.push({
             type: type,
             data: data,
-            createdAt: Date.now()
+            createdAt: new Date()
         })
+
+        this.persist();
     },
 
     persist: function () {
@@ -117,7 +122,9 @@ var app = {
                 console.log(this);
                 var sourceType = this.getAttribute('data-source');
                 cameraService.takePicture(sourceType, function (imageData) {
-                    targetImg.src = "data:image/jpeg;base64," + imageData;
+                    var imagePath = "data:image/jpeg;base64," + imageData;
+                    targetImg.src = imagePath;
+                    storageService.addPhoto(imagePath);
                 });
             });
         }
