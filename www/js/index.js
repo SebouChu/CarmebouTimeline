@@ -1,6 +1,10 @@
+import storageService from './services/storage.js';
+import cameraService from './services/storage.js';
+
 var app = {
     // Application Constructor
     initialize: function() {
+        storageService.init();
         document.getElementById("showFormButton").addEventListener("click", showForm);
 
         document.getElementById("typeSelection").addEventListener("change", chooseType);

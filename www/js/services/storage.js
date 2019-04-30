@@ -1,7 +1,8 @@
-var storage = {
+export default {
     data: null,
 
     init: function () {
+        console.log('init storage');
         var rawTimeline = localStorage.getItem("timeline");
         if (rawTimeline) {
             this.data = JSON.parse(rawTimeline);
@@ -38,6 +39,4 @@ var storage = {
     persist: function () {
         localStorage.setItem("timeline", JSON.stringify(this.data));
     }
-}
-
-module.exports = storage;
+};
