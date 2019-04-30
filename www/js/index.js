@@ -8,7 +8,6 @@ var storageService = {
     data: null,
 
     init: function () {
-        console.log('init storage');
         var rawTimeline = localStorage.getItem("timeline");
         if (rawTimeline) {
             this.data = JSON.parse(rawTimeline);
