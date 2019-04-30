@@ -130,7 +130,7 @@ var app = {
             showFormElement('take-picture')
         });
         document.getElementById("showVideoButton").addEventListener("click", () => {
-            showFormElement('video')
+            showFormElement('capture-video')
         });
         document.getElementById("showLocalisationButton").addEventListener("click", () => {
             showFormElement('localisation')
