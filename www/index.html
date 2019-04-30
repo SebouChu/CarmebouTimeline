@@ -11,15 +11,14 @@
     <body>
         <div class="app">
             <div id="add-form" class="hidden">
+                <button id="showTextButton">Texte</button>
+                <button id="showPictureButton">Image</button>
+                <button id="showVideoButton">Vidéo</button>
+                <button id="showLocalisationButton">Localisation</button>
+
                 <form>
-                    <input type="text" placeholder="Description" id="description">
-                    <label for="typeSelection">Ajouter un élément à l'article</label>
-                    <select id="typeSelection">
-                        <option value="none">None</option>
-                        <option value="image" id="typeImage">Image</option>
-                        <option value="video" id="typeVideo">Vidéo</option>
-                        <option value="localisation" id="typeLocalisation">Localisation</option>
-                    </select>
+
+                    <input type="text" id="text" class="hidden">
                     <div id="take-picture" class="hidden">
                         <button type="button" data-source="CAMERA">Take Picture</button>
                         <button type="button" data-source="SAVEDPHOTOALBUM">Select from Gallery</button>

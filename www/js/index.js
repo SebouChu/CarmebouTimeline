@@ -22,7 +22,7 @@ var storageService = {
     },
 
     addPhoto: function (imagePath) {
-        this.addData('photo', { path: imagePath });
+        this.addData('photo', {path: imagePath});
     },
 
     addVideo: function () {
@@ -81,7 +81,7 @@ var cameraService = {
     //     this.image.src = "data:image/jpeg;base64," + imageData;
     // },
 
-    alertError: function(message) {
+    alertError: function (message) {
         alert('Failed because: ' + message);
     }
 };
@@ -94,31 +94,42 @@ var cameraService = {
 
 var app = {
     // Application Constructor
-    initialize: function() {
+    initialize: function () {
         storageService.init();
         document.addEventListener('deviceready', this.onDeviceReady.bind(this), false);
         document.getElementById("showFormButton").addEventListener("click", showForm);
 
-        document.getElementById("typeSelection").addEventListener("change", chooseType);
+        document.getElementById("showTextButton").addEventListener("click", () => {
+            showFormElement('text')
+        });
+        document.getElementById("showPictureButton").addEventListener("click", () => {
+            showFormElement('take-picture')
+        });
+        document.getElementById("showVideoButton").addEventListener("click", () => {
+            showFormElement('video')
+        });
+        document.getElementById("showLocalisationButton").addEventListener("click", () => {
+            showFormElement('localisation')
+        });
     },
 
     // deviceready Event Handler
     //
     // Bind any cordova events here. Common events are:
     // 'pause', 'resume', etc.
-    onDeviceReady: function() {
+    onDeviceReady: function () {
         console.log('ready');
         this.initCameraButtons();
     },
 
     // Update DOM on a Received Event
-    initCameraButtons: function(id) {
+    initCameraButtons: function (id) {
         var cameraBtns = document.querySelectorAll('div#take-picture button'),
             targetImg = document.querySelector('div#take-picture img'),
             i;
 
         for (i = 0; i < cameraBtns.length; i += 1) {
-            cameraBtns[i].addEventListener('click', function() {
+            cameraBtns[i].addEventListener('click', function () {
                 console.log(this);
                 var sourceType = this.getAttribute('data-source');
                 cameraService.takePicture(sourceType, function (imageData) {
@@ -140,29 +151,13 @@ function showForm() {
     }
 }
 
-function chooseType() {
-    let type = document.getElementById('typeSelection').value;
-    hideTypes();
-
-    switch (type) {
-        case "none": console.log("none"); break;
-        case "image":
-            document.getElementById("take-picture").classList.remove('hidden');
-            break;
-        case "video":
-            document.getElementById("video").classList.remove('hidden');
-            break;
-        case "localisation":
-            document.getElementById("localisation").classList.remove('hidden');
-            break;
-        default: break;
+function showFormElement(id) {
+    let elem = document.getElementById(id);
+    if (elem.classList.contains('hidden')) {
+        elem.classList.remove('hidden')
+    } else {
+        elem.classList.add('hidden')
     }
-}
-
-function hideTypes() {
-    document.getElementById("take-picture").classList.add('hidden');
-    document.getElementById("video").classList.add('hidden');
-    document.getElementById("localisation").classList.add('hidden');
 }
 
 app.initialize();
