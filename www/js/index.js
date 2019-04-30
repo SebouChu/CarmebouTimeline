@@ -140,7 +140,7 @@ function chooseType() {
     switch (type) {
         case "none": console.log("none"); break;
         case "image":
-            document.getElementById("image").classList.remove('hidden');
+            document.getElementById("take-picture").classList.remove('hidden');
             break;
         case "video":
             document.getElementById("video").classList.remove('hidden');
@@ -153,7 +153,7 @@ function chooseType() {
 }
 
 function hideTypes() {
-    document.getElementById("image").classList.add('hidden');
+    document.getElementById("take-picture").classList.add('hidden');
     document.getElementById("video").classList.add('hidden');
     document.getElementById("localisation").classList.add('hidden');
 }
