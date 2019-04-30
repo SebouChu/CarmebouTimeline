@@ -29,8 +29,8 @@ var storageService = {
         this.addData('video', { path: videoPath });
     },
 
-    addLocation: function () {
-        // TODO: Ajouter une géolocalisation dans le localStorage
+    addLocation: function (latitude, longitude) {
+        this.addData('location', { latitude: latitude, longitude: longitude });
     },
 
     addSimpleText: function () {
@@ -110,6 +110,25 @@ var videoService = {
     }
 }
 
+//    ____ _____ ___  _     ___   ____
+//   / ___| ____/ _ \| |   / _ \ / ___|
+//  | |  _|  _|| | | | |  | | | | |
+//  | |_| | |__| |_| | |__| |_| | |___
+//   \____|_____\___/|_____\___/ \____|
+
+var geolocService = {
+    geolocateUser: function (callback) {
+        navigator.geolocation.getCurrentPosition(
+            callback,
+            this.alertError.bind(this)
+        );
+    },
+
+    alertError: function (error) {
+        alert('Error code ' + error.code + ': ' + error.message);
+    }
+}
+
 //      _    ____  ____  _     ___ ____    _  _____ ___ ___  _   _
 //     / \  |  _ \|  _ \| |   |_ _/ ___|  / \|_   _|_ _/ _ \| \ | |
 //    / _ \ | |_) | |_) | |    | | |     / _ \ | |  | | | | |  \| |
@@ -147,6 +166,7 @@ var app = {
         console.log('ready');
         this.initCameraButtons();
         this.initVideoCaptureButton();
+        this.initGeolocButton();
     },
 
     // Update DOM on a Received Event
@@ -186,6 +206,34 @@ var app = {
                 targetVideo.src = videoPath;
 
                 storageService.addVideo(videoPath);
+            });
+        });
+    },
+
+    initGeolocButton: function () {
+        var geolocBtn = document.querySelector('div#geolocate-user button'),
+            coordsParagraph = document.querySelector('div#geolocate-user p'),
+            mapContainer = document.querySelector('div#geolocate-user #map'),
+            leafletMap;
+
+        if (!geolocBtn) {
+            return;
+        }
+
+        geolocBtn.addEventListener('click', function () {
+            geolocService.geolocateUser(function (position) {
+                var lat = position.coords.latitude,
+                    lon = position.coords.longitude;
+
+                coordsParagraph.textContent = "Coords: " + lat + " / " + lon;
+                leafletMap = L.map(mapContainer).setView([lat, lon], 11);
+                L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+                    minZoom: 1,
+                    maxZoom: 20
+                }).addTo(leafletMap);
+                L.marker([lat, lon]).addTo(leafletMap);
+
+                storageService.addLocation(lat, lon);
             });
         });
     }
