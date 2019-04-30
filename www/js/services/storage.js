@@ -39,3 +39,5 @@ var storage = {
         localStorage.setItem("timeline", JSON.stringify(this.data));
     }
 }
+
+module.exports = storage;
