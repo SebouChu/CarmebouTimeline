@@ -2,6 +2,8 @@ var app = {
     // Application Constructor
     initialize: function() {
         document.getElementById("showFormButton").addEventListener("click", showForm);
+
+        document.getElementById("typeSelection").addEventListener("change", chooseType);
     },
 
     // deviceready Event Handler
@@ -64,6 +66,17 @@ function showForm() {
         form.classList.remove('hidden');
     } else {
         form.classList.add('hidden');
+    }
+}
+
+function chooseType() {
+    let type = document.getElementById('typeSelection').value;
+    switch (type) {
+        case "none": console.log("none"); break;
+        case "image": console.log("image"); break;
+        case "video": console.log("video"); break;
+        case "localisation": console.log("localisation"); break;
+        default: break;
     }
 }
 
