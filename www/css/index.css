@@ -113,3 +113,7 @@ button#showFormButton {
   width: auto;
   height: auto;
 }
+
+video[src="#"] {
+  display: none;
+}

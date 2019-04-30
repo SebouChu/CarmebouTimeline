@@ -25,8 +25,8 @@ var storageService = {
         this.addData('photo', { path: imagePath });
     },
 
-    addVideo: function () {
-        // TODO: Ajouter une vidéo dans le localStorage
+    addVideo: function (videoPath) {
+        this.addData('video', { path: videoPath });
     },
 
     addLocation: function () {
@@ -86,6 +86,30 @@ var cameraService = {
     }
 };
 
+//  __     _____ ____  _____ ___
+//  \ \   / /_ _|  _ \| ____/ _ \
+//   \ \ / / | || | | |  _|| | | |
+//    \ V /  | || |_| | |__| |_| |
+//     \_/  |___|____/|_____\___/
+
+var videoService = {
+    captureVideo: function (callback) {
+        navigator.device.capture.captureVideo(
+            callback,
+            this.alertError.bind(this),
+            {
+                limit: 1,
+                duration: 30,
+                quality: 0 // Android only
+            }
+        )
+    },
+
+    alertError: function (error) {
+        alert('Error code: ' + error.code, null, 'Capture Error');
+    }
+}
+
 //      _    ____  ____  _     ___ ____    _  _____ ___ ___  _   _
 //     / \  |  _ \|  _ \| |   |_ _/ ___|  / \|_   _|_ _/ _ \| \ | |
 //    / _ \ | |_) | |_) | |    | | |     / _ \ | |  | | | | |  \| |
@@ -109,25 +133,48 @@ var app = {
     onDeviceReady: function() {
         console.log('ready');
         this.initCameraButtons();
+        this.initVideoCaptureButton();
     },
 
     // Update DOM on a Received Event
-    initCameraButtons: function(id) {
+    initCameraButtons: function() {
         var cameraBtns = document.querySelectorAll('div#take-picture button'),
             targetImg = document.querySelector('div#take-picture img'),
             i;
 
         for (i = 0; i < cameraBtns.length; i += 1) {
             cameraBtns[i].addEventListener('click', function() {
-                console.log(this);
                 var sourceType = this.getAttribute('data-source');
                 cameraService.takePicture(sourceType, function (imageData) {
                     var imagePath = "data:image/jpeg;base64," + imageData;
                     targetImg.src = imagePath;
+
                     storageService.addPhoto(imagePath);
                 });
             });
         }
+    },
+
+    initVideoCaptureButton: function () {
+        var videoCaptureBtn = document.querySelector('div#capture-video button'),
+            targetVideo = document.querySelector('div#capture-video video');
+        if (!videoCaptureBtn) {
+            return;
+        }
+
+        videoCaptureBtn.addEventListener('click', function () {
+            videoService.captureVideo(function (mediaFiles) {
+                var capturedVideo = mediaFiles[0];
+                if (!capturedVideo) {
+                    return;
+                }
+
+                var videoPath = capturedVideo.fullPath;
+                targetVideo.src = videoPath;
+
+                storageService.addVideo(videoPath);
+            });
+        });
     }
 };
 
