@@ -24,7 +24,10 @@
                         <button type="button" data-source="SAVEDPHOTOALBUM">Select from Gallery</button>
                         <img class="img-fluid" id="target-img" src="#" alt="">
                     </div>
-                    <input type="image" id="video" class="hidden">
+                    <div id="capture-video" class="hidden">
+                        <button type="button">Capture video</button>
+                        <video src="#" controls width="250"></video>
+                    </div>
                     <input type="text" id="localisation" class="hidden">
                     <input type="submit" value="Envoyer">
                 </form>
@@ -32,7 +35,6 @@
             <div id="timeline">
                 Bonjour je suis le contenu
             </div>
-
             <button id="showFormButton">+</button>
         </div>
         <script type="text/javascript" src="cordova.js"></script>
