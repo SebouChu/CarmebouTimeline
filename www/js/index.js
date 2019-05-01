@@ -268,7 +268,7 @@ function showTimeline() {
         {
             titre: "patate",
             description: "la cure de patates c'est bien",
-            image: "",
+            image: "https://helpx.adobe.com/content/dam/help/en/stock/how-to/visual-reverse-image-search/_jcr_content/main-pars/image/visual-reverse-image-search-v2_1000x560.jpg",
             video: "",
             localisation: ""
         }
