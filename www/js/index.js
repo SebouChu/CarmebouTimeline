@@ -20,24 +20,10 @@ var storageService = {
         }
     },
 
-    addPhoto: function (imagePath) {
-        this.addData('photo', {path: imagePath});
-    },
+    addItem: function (itemData) {
+        itemData.createdAt = new Date();
 
-    addVideo: function (videoPath) {
-        this.addData('video', { path: videoPath });
-    },
-
-    addLocation: function (latitude, longitude) {
-        this.addData('location', { latitude: latitude, longitude: longitude });
-    },
-
-    addData: function (type, data) {
-        this.data.push({
-            type: type,
-            data: data,
-            createdAt: new Date()
-        })
+        this.data.push(itemData)
 
         this.persist();
     },
@@ -280,17 +266,36 @@ var formManager = {
     handleSubmit: function (e) {
         e.preventDefault();
 
-        var data = {},
+        var rawFormData = {},
             i;
 
         for (i = 0; i < this.inputs.length; i += 1) {
-            var key = this.inputs[i].getAttribute('name'),
+            let key = this.inputs[i].getAttribute('name'),
                 value = this.inputs[i].value;
 
-            data[key] = value;
+            if (value !== "") {
+                rawFormData[key] = value;
+            }
         }
 
-        console.log(data);
+        var formData = this.processData(rawFormData);
+        storageService.addItem(formData);
+    },
+
+    processData: function (rawData) {
+        var processedData = {};
+        processedData.text = rawData.text;
+        processedData.picture = rawData.picture;
+        processedData.video = rawData.video;
+
+        if (rawData.hasOwnProperty('latitude') && rawData.hasOwnProperty('longitude')) {
+            processedData.location = {
+                latitude: parseFloat(rawData.latitude),
+                longitude: parseFloat(rawData.longitude),
+            };
+        }
+
+        return processedData;
     }
 }
 
