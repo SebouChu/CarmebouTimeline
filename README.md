@@ -36,38 +36,14 @@ Ils sont persistés dans le LocalStorage et affichés dans la timeline du plus r
 ## Exemple de données
 
 ```json
-[
-  {
-    "type": "image",
-    "data": {
-      "path": "data:image/jpeg;base64..."
-    },
-    "createdAt": "2019-04-30T15:41:41.859Z"
+{
+  "text": "Lorem ipsum dolor sit amet, consectetur adipisicing elit...",
+  "video": "file:///storage/emulated/0/...",
+  "image": "data:image/jpeg;base64...",
+  "location": {
+    "latitude": 42,
+    "longitude": -1,
   },
-
-  {
-    "type": "video",
-    "data": {
-      "path": "file:///storage/emulated/0/..."
-    },
-    "createdAt": "2019-04-30T15:41:41.859Z"
-  },
-
-  {
-    "type": "location",
-    "data": {
-      "latitude": 42,
-      "longitude": -1,
-    },
-    "createdAt": "2019-04-30T15:41:41.859Z"
-  },
-
-  {
-    "type": "text",
-    "data": {
-      "content": "Lorem ipsum dolor sit amet, consectetur adipisicing elit..."
-    },
-    "createdAt": "2019-04-30T15:41:41.859Z"
-  }
-]
+  "createdAt": "2019-04-30T15:41:41.859Z"
+}
 ```
