@@ -32,10 +32,6 @@ var storageService = {
         this.addData('location', { latitude: latitude, longitude: longitude });
     },
 
-    addSimpleText: function () {
-        // TODO: Ajouter un texte simple dans le localStorage
-    },
-
     addData: function (type, data) {
         this.data.push({
             type: type,
@@ -74,11 +70,6 @@ var cameraService = {
             }
         );
     },
-
-    // FIXME: A supprimer quand ça sera implémenté là où il faut
-    // displayImage: function (imageData) {
-    //     this.image.src = "data:image/jpeg;base64," + imageData;
-    // },
 
     alertError: function (message) {
         alert('Failed because: ' + message);
@@ -128,6 +119,181 @@ var geolocService = {
     }
 }
 
+//   _____ ___  ____  __  __   __  __    _    _   _    _    ____ _____ ____
+//  |  ___/ _ \|  _ \|  \/  | |  \/  |  / \  | \ | |  / \  / ___| ____|  _ \
+//  | |_ | | | | |_) | |\/| | | |\/| | / _ \ |  \| | / _ \| |  _|  _| | |_) |
+//  |  _|| |_| |  _ <| |  | | | |  | |/ ___ \| |\  |/ ___ \ |_| | |___|  _ <
+//  |_|   \___/|_| \_\_|  |_| |_|  |_/_/   \_\_| \_/_/   \_\____|_____|_| \_\
+
+var formManager = {
+    toggler: undefined,
+    wrapper: undefined,
+    form: undefined,
+    navItems: [],
+    inputs: [],
+
+    init: function () {
+        this.toggler = document.querySelector('#showFormButton');
+        this.wrapper = document.querySelector('#itemFormWrapper');
+        this.form = document.querySelector('form#itemForm');
+
+        if (!this.toggler || !this.wrapper || !this.form) {
+            return;
+        }
+
+        this.form.addEventListener('submit', this.handleSubmit.bind(this));
+
+        this.initToggler();
+        this.initNav();
+        this.initTabs();
+    },
+
+    initToggler: function () {
+        this.toggler.addEventListener('click', function () {
+            formManager.wrapper.classList.toggle('active');
+        });
+    },
+
+    initNav: function () {
+        this.navItems = this.form.querySelectorAll('.form-nav-item');
+
+        var i;
+        for (i = 0; i < this.navItems.length; i += 1) {
+            this.navItems[i].addEventListener('click', function () {
+                formManager.toggleTab(this.getAttribute('data-target'));
+            });
+        }
+    },
+
+    toggleTab: function (tabSelector) {
+        var tab = this.form.querySelector(tabSelector);
+        if (tab) {
+            tab.classList.toggle('active');
+        }
+    },
+
+    initTabs: function () {
+        this.initTextTab();
+        this.initPictureTab();
+        this.initVideoTab();
+        this.initLocationTab();
+    },
+
+    initTextTab: function () {
+        var textTab = this.form.querySelector('#textTab');
+        if (!textTab) {
+            return;
+        }
+
+        var textInput = textTab.querySelector('#textInput');
+        this.inputs.push(textInput);
+    },
+
+    initPictureTab: function () {
+        var pictureTab = this.form.querySelector('#pictureTab');
+        if (!pictureTab) {
+            return;
+        }
+
+        var pictureInput = pictureTab.querySelector('#pictureInput'),
+            actionBtns = pictureTab.querySelectorAll('button'),
+            previewImg = pictureTab.querySelector('img'),
+            i;
+
+        for (i = 0; i < actionBtns.length; i += 1) {
+            actionBtns[i].addEventListener('click', function () {
+                var sourceType = this.getAttribute('data-source');
+                cameraService.takePicture(sourceType, function (imageData) {
+                    var imagePath = "data:image/jpeg;base64," + imageData;
+
+                    previewImg.src = imagePath;
+                    pictureInput.value = imagePath;
+                });
+            });
+        };
+
+        this.inputs.push(pictureInput);
+    },
+
+    initVideoTab: function () {
+        var videoTab = this.form.querySelector('#videoTab');
+        if (!videoTab) {
+            return;
+        }
+
+        var videoInput = videoTab.querySelector('#videoInput'),
+            actionBtn = videoTab.querySelector('button'),
+            previewVideo = videoTab.querySelector('video');
+
+        actionBtn.addEventListener('click', function () {
+            videoService.captureVideo(function (mediaFiles) {
+                var capturedVideo = mediaFiles[0];
+                if (!capturedVideo) {
+                    return;
+                }
+
+                var videoPath = capturedVideo.fullPath;
+
+                previewVideo.src = videoPath;
+                videoInput.value = videoPath;
+            });
+        });
+
+        this.inputs.push(videoInput);
+    },
+
+    initLocationTab: function () {
+        var locationTab = this.form.querySelector('#locationTab');
+        if (!locationTab) {
+            return;
+        }
+
+        var latitudeInput = locationTab.querySelector('#latitudeInput'),
+            longitudeInput = locationTab.querySelector('#longitudeInput'),
+            actionBtn = locationTab.querySelector('button'),
+            coordsParagraph = locationTab.querySelector('p'),
+            mapElt = locationTab.querySelector('#map'),
+            leafletMap;
+
+        actionBtn.addEventListener('click', function () {
+            geolocService.geolocateUser(function (position) {
+                var lat = position.coords.latitude,
+                    lon = position.coords.longitude;
+
+                coordsParagraph.textContent = "Coords: " + lat + " / " + lon;
+                leafletMap = L.map(mapElt).setView([lat, lon], 11);
+                L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+                    minZoom: 1,
+                    maxZoom: 20
+                }).addTo(leafletMap);
+                L.marker([lat, lon]).addTo(leafletMap);
+
+                latitudeInput.value = lat;
+                longitudeInput.value = lon;
+            });
+        });
+
+        this.inputs.push(latitudeInput);
+        this.inputs.push(longitudeInput);
+    },
+
+    handleSubmit: function (e) {
+        e.preventDefault();
+
+        var data = {},
+            i;
+
+        for (i = 0; i < this.inputs.length; i += 1) {
+            var key = this.inputs[i].getAttribute('name'),
+                value = this.inputs[i].value;
+
+            data[key] = value;
+        }
+
+        console.log(data);
+    }
+}
+
 //      _    ____  ____  _     ___ ____    _  _____ ___ ___  _   _
 //     / \  |  _ \|  _ \| |   |_ _/ ___|  / \|_   _|_ _/ _ \| \ | |
 //    / _ \ | |_) | |_) | |    | | |     / _ \ | |  | | | | |  \| |
@@ -139,122 +305,13 @@ var app = {
     initialize: function () {
         storageService.init();
         document.addEventListener('deviceready', this.onDeviceReady.bind(this), false);
-        document.getElementById("showFormButton").addEventListener("click", showForm);
-
-        document.getElementById("showTextButton").addEventListener("click", () => {
-            showFormElement('text')
-        });
-        document.getElementById("showPictureButton").addEventListener("click", () => {
-            showFormElement('take-picture')
-        });
-        document.getElementById("showVideoButton").addEventListener("click", () => {
-            showFormElement('capture-video')
-        });
-        document.getElementById("showLocalisationButton").addEventListener("click", () => {
-            showFormElement('geolocate-user')
-        });
-
-        showTimeline();
     },
 
-    // deviceready Event Handler
-    //
-    // Bind any cordova events here. Common events are:
-    // 'pause', 'resume', etc.
     onDeviceReady: function () {
-        console.log('ready');
-        this.initCameraButtons();
-        this.initVideoCaptureButton();
-        this.initGeolocButton();
-    },
-
-    // Update DOM on a Received Event
-    initCameraButtons: function () {
-        var cameraBtns = document.querySelectorAll('div#take-picture button'),
-            targetImg = document.querySelector('div#take-picture img'),
-            i;
-
-        for (i = 0; i < cameraBtns.length; i += 1) {
-            cameraBtns[i].addEventListener('click', function () {
-                var sourceType = this.getAttribute('data-source');
-                cameraService.takePicture(sourceType, function (imageData) {
-                    var imagePath = "data:image/jpeg;base64," + imageData;
-                    targetImg.src = imagePath;
-
-                    storageService.addPhoto(imagePath);
-                });
-            });
-        }
-    },
-
-    initVideoCaptureButton: function () {
-        var videoCaptureBtn = document.querySelector('div#capture-video button'),
-            targetVideo = document.querySelector('div#capture-video video');
-        if (!videoCaptureBtn) {
-            return;
-        }
-
-        videoCaptureBtn.addEventListener('click', function () {
-            videoService.captureVideo(function (mediaFiles) {
-                var capturedVideo = mediaFiles[0];
-                if (!capturedVideo) {
-                    return;
-                }
-
-                var videoPath = capturedVideo.fullPath;
-                targetVideo.src = videoPath;
-
-                storageService.addVideo(videoPath);
-            });
-        });
-    },
-
-    initGeolocButton: function () {
-        var geolocBtn = document.querySelector('div#geolocate-user button'),
-            coordsParagraph = document.querySelector('div#geolocate-user p'),
-            mapContainer = document.querySelector('div#geolocate-user #map'),
-            leafletMap;
-
-        if (!geolocBtn) {
-            return;
-        }
-
-        geolocBtn.addEventListener('click', function () {
-            geolocService.geolocateUser(function (position) {
-                var lat = position.coords.latitude,
-                    lon = position.coords.longitude;
-
-                coordsParagraph.textContent = "Coords: " + lat + " / " + lon;
-                leafletMap = L.map(mapContainer).setView([lat, lon], 11);
-                L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
-                    minZoom: 1,
-                    maxZoom: 20
-                }).addTo(leafletMap);
-                L.marker([lat, lon]).addTo(leafletMap);
-
-                storageService.addLocation(lat, lon);
-            });
-        });
+        formManager.init();
+        showTimeline();
     }
 };
-
-function showForm() {
-    let form = document.getElementById('add-form');
-    if (form.classList.contains('hidden')) {
-        form.classList.remove('hidden');
-    } else {
-        form.classList.add('hidden');
-    }
-}
-
-function showFormElement(id) {
-    let elem = document.getElementById(id);
-    if (elem.classList.contains('hidden')) {
-        elem.classList.remove('hidden')
-    } else {
-        elem.classList.add('hidden')
-    }
-}
 
 function showTimeline() {
     let elements = [

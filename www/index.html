@@ -15,36 +15,54 @@
     </head>
     <body>
         <div class="app">
-            <div id="add-form" class="hidden">
-                <button id="showTextButton">Texte</button>
-                <button id="showPictureButton">Image</button>
-                <button id="showVideoButton">Vidéo</button>
-                <button id="showLocalisationButton">Localisation</button>
+            <div id="itemFormWrapper">
+                <form id="itemForm">
+                    <div class="form-nav">
+                      <button type="button" class="form-nav-item" id="textTabBtn" data-target="#textTab">Texte</button>
+                      <button type="button" class="form-nav-item" id="pictureTabBtn" data-target="#pictureTab">Image</button>
+                      <button type="button" class="form-nav-item" id="videoTabBtn" data-target="#videoTab">Vidéo</button>
+                      <button type="button" class="form-nav-item" id="locationTabBtn" data-target="#locationTab">Localisation</button>
+                    </div>
 
-                <form>
-                    <input type="text" id="text" class="hidden">
-                    <div id="take-picture" class="hidden">
+                    <div class="form-tabs">
+                      <div class="form-tab" id="textTab">
+                        <input type="text" name="text" id="textInput">
+                      </div>
+                      <div class="form-tab" id="pictureTab">
                         <button type="button" data-source="CAMERA">Take Picture</button>
                         <button type="button" data-source="SAVEDPHOTOALBUM">Select from Gallery</button>
                         <img class="img-fluid" id="target-img" src="#" alt="">
-                    </div>
-                    <div id="capture-video" class="hidden">
+
+                        <input type="hidden" name="picture" id="pictureInput">
+                      </div>
+                      <div class="form-tab" id="videoTab">
                         <button type="button">Capture video</button>
                         <video src="#" controls width="250"></video>
-                    </div>
-                    <div id="geolocate-user" class="hidden">
-                      <button type="button">Geolocate me</button>
-                      <div class="geoloc-results">
-                        <p></p>
-                        <div id="map"></div>
+
+                        <input type="hidden" name="video" id="videoInput">
+                      </div>
+                      <div class="form-tab" id="locationTab">
+                        <button type="button">Geolocate me</button>
+                        <div class="location-infos">
+                          <p></p>
+                          <div id="map"></div>
+                        </div>
+
+                        <input type="hidden" name="latitude" id="latitudeInput">
+                        <input type="hidden" name="longitude" id="longitudeInput">
                       </div>
                     </div>
-                    <input type="submit" value="Envoyer">
+
+                    <div class="form-actions">
+                      <input type="submit" value="Envoyer">
+                    </div>
                 </form>
             </div>
+            
             <div id="timeline">
             </div>
-            <a id="showFormButton">+</a>
+            
+            <a href="#" id="showFormButton">+</a>
         </div>
         <script type="text/javascript" src="cordova.js"></script>
         <script type="text/javascript" src="js/index.js"></script>
