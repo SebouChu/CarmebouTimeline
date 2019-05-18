@@ -21,11 +21,25 @@ var storageService = {
     },
 
     addItem: function (itemData) {
+        itemData.uid = this.generateUid();
         itemData.createdAt = new Date();
 
         this.data.push(itemData)
 
         this.persist();
+    },
+
+    generateUid: function () {
+        var arr = new Uint8Array(5),
+            hexArr = [],
+            i;
+
+        (window.crypto || window.msCrypto).getRandomValues(arr);
+        for (i = 0; i < arr.length; i += 1) {
+            hexArr[i] = ('0' + arr[i].toString(16)).substr(-2);
+        }
+
+        return hexArr.join('');
     },
 
     persist: function () {
@@ -299,6 +313,37 @@ var formManager = {
     }
 }
 
+/////////
+
+var timelineManager = {
+    init: function () {
+        this.container = document.getElementById("timeline");
+        if (!this.container) {
+            return;
+        }
+
+        storageService.data.forEach(item => {
+            console.log(item.uid);
+            this.addItem(item);
+        });
+    },
+
+    addItem: function (item) {
+        var itemElement = this.createItemElement(item);
+        this.container.appendChild(itemElement);
+    },
+
+    createItemElement: function (item) {
+        var element = document.createElement('div');
+        element.setAttribute('class', 'timeline__item');
+        element.setAttribute('id', `timeline__item-${item.uid}`);
+
+
+        return element;
+    }
+}
+
+
 //      _    ____  ____  _     ___ ____    _  _____ ___ ___  _   _
 //     / \  |  _ \|  _ \| |   |_ _/ ___|  / \|_   _|_ _/ _ \| \ | |
 //    / _ \ | |_) | |_) | |    | | |     / _ \ | |  | | | | |  \| |
@@ -314,71 +359,8 @@ var app = {
 
     onDeviceReady: function () {
         formManager.init();
-        showTimeline();
+        timelineManager.init();
     }
 };
-
-function showTimeline() {
-    let elements = [
-        {
-            titre: "banane",
-            description: "la cure de banane c'est bien",
-            image: "",
-            video: "",
-            localisation: ""
-        },
-        {
-            titre: "patate",
-            description: "la cure de patates c'est bien",
-            image: "https://helpx.adobe.com/content/dam/help/en/stock/how-to/visual-reverse-image-search/_jcr_content/main-pars/image/visual-reverse-image-search-v2_1000x560.jpg",
-            video: "",
-            localisation: ""
-        }
-    ];
-
-    let timeline = document.getElementById("timeline");
-
-    elements.forEach((elem) => {
-        let container = document.createElement('div');
-        container.classList.add('timeline-element');
-
-        let bullet = document.createElement('div');
-        bullet.classList.add('bullet');
-        container.appendChild(bullet);
-
-        if (elem.titre !== "") {
-            let title = document.createElement('h2');
-            title.append(elem.titre);
-            container.appendChild(title);
-        }
-
-        if (elem.description !== "") {
-            let description = document.createElement('p');
-            description.append(elem.description);
-            container.appendChild(description);
-        }
-
-        if (elem.image !== "") {
-            let image = document.createElement('img');
-            image.setAttribute('src', elem.image);
-            container.appendChild(image);
-        }
-
-        if (elem.video !== "") {
-            let video = document.createElement('video');
-            video.setAttribute('src', elem.video);
-            container.appendChild(video);
-        }
-
-        if (elem.localisation !== "") {
-            let localisation = document.createElement('text');
-            localisation.append(elem.localisation);
-            container.appendChild(localisation);
-
-        }
-
-        timeline.appendChild(container);
-    })
-}
 
 app.initialize();
