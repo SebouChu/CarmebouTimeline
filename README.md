@@ -5,7 +5,7 @@ Application mobile powered by Cordova.
 ## Features
 
 Permet d'ajouter des articles à une timeline.
-Les articles sont un type :
+Les articles peuvent avoir :
 - Photo (via plugin Camera)
 - Vidéo (via plugin Media Capture)
 - Géoloc (via plugin Geolocation) : s'affiche dans une carte
