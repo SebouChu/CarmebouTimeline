@@ -25,7 +25,6 @@ var storageService = {
         itemData.createdAt = new Date();
 
         this.data.push(itemData)
-
         this.persist();
     },
 
@@ -114,6 +113,20 @@ var geolocService = {
         );
     },
 
+    initMap: function (mapElt, lat, lon) {
+        var leafletMap = L.map(mapElt).setView([lat, lon], 11);
+        L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+            minZoom: 1,
+            maxZoom: 20
+        }).addTo(leafletMap);
+        L.marker([lat, lon]).addTo(leafletMap);
+        mapElt._leaflet_map = leafletMap;
+    },
+
+    reloadMap: function (mapElt) {
+        mapElt._leaflet_map.invalidateSize();
+    },
+
     alertError: function (error) {
         alert('Error code ' + error.code + ': ' + error.message);
     }
@@ -144,6 +157,7 @@ var formManager = {
         this.form.addEventListener('submit', this.handleSubmit.bind(this));
 
         this.initToggler();
+        this.initTitleInput();
         this.initNav();
         this.initTabs();
     },
@@ -179,14 +193,19 @@ var formManager = {
         this.initLocationTab();
     },
 
+    initTitleInput: function () {
+        var titleInput = this.form.querySelector('#titleInput');
+        this.inputs.push(titleInput);
+    },
+
     initTextTab: function () {
         var textTab = this.form.querySelector('#textTab');
         if (!textTab) {
             return;
         }
 
-        var textInput = textTab.querySelector('#textInput');
-        this.inputs.push(textInput);
+        var contentInput = textTab.querySelector('#contentInput');
+        this.inputs.push(contentInput);
     },
 
     initPictureTab: function () {
@@ -252,8 +271,7 @@ var formManager = {
             longitudeInput = locationTab.querySelector('#longitudeInput'),
             actionBtn = locationTab.querySelector('button'),
             coordsParagraph = locationTab.querySelector('p'),
-            mapElt = locationTab.querySelector('#map'),
-            leafletMap;
+            mapElt = locationTab.querySelector('#map');
 
         actionBtn.addEventListener('click', function () {
             geolocService.geolocateUser(function (position) {
@@ -261,12 +279,7 @@ var formManager = {
                     lon = position.coords.longitude;
 
                 coordsParagraph.textContent = "Coords: " + lat + " / " + lon;
-                leafletMap = L.map(mapElt).setView([lat, lon], 11);
-                L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
-                    minZoom: 1,
-                    maxZoom: 20
-                }).addTo(leafletMap);
-                L.marker([lat, lon]).addTo(leafletMap);
+                geolocService.initMap(mapElt, lat, lon);
 
                 latitudeInput.value = lat;
                 longitudeInput.value = lon;
@@ -298,7 +311,8 @@ var formManager = {
 
     processData: function (rawData) {
         var processedData = {};
-        processedData.text = rawData.text;
+        processedData.title = rawData.title;
+        processedData.content = rawData.content;
         processedData.picture = rawData.picture;
         processedData.video = rawData.video;
 
@@ -313,7 +327,12 @@ var formManager = {
     }
 }
 
-/////////
+
+//   _____ ___ __  __ _____ _     ___ _   _ _____
+//  |_   _|_ _|  \/  | ____| |   |_ _| \ | | ____|
+//    | |  | || |\/| |  _| | |    | ||  \| |  _|
+//    | |  | || |  | | |___| |___ | || |\  | |___
+//    |_| |___|_|  |_|_____|_____|___|_| \_|_____|
 
 var timelineManager = {
     init: function () {
@@ -322,15 +341,21 @@ var timelineManager = {
             return;
         }
 
+        console.log('Init Timeline');
+
         storageService.data.forEach(item => {
-            console.log(item.uid);
             this.addItem(item);
         });
     },
 
     addItem: function (item) {
+        console.log(`Adding item #${item.uid}`);
         var itemElement = this.createItemElement(item);
         this.container.appendChild(itemElement);
+
+        if (item.location !== undefined) {
+            this.initItemMap(item);
+        }
     },
 
     createItemElement: function (item) {
@@ -338,8 +363,124 @@ var timelineManager = {
         element.setAttribute('class', 'timeline__item');
         element.setAttribute('id', `timeline__item-${item.uid}`);
 
+        var titleElt = this.getSimpleElement('h2', 'title', item.title);
+        if (titleElt !== null) {
+            element.appendChild(titleElt);
+        }
+
+        var contentElt = this.getSimpleElement('p', 'content', item.content);
+        if (contentElt !== null) {
+            element.appendChild(contentElt);
+        }
+
+        var imageElt = this.getMediaElement('image', item.picture);
+        var videoElt = this.getMediaElement('video', item.video);
+        var locationElt = this.getLocationElement(item.location, item.uid);
+        if (!imageElt && !videoElt && !locationElt) {
+            return element;
+        }
+
+        var collapseBtn = document.createElement('button');
+        collapseBtn.setAttribute('type', 'button');
+        collapseBtn.setAttribute('data-target', `#item__collapsed-${item.uid}`);
+        collapseBtn.innerText = "Show Details";
+        this.addCollapseEventListener(collapseBtn);
+        element.appendChild(collapseBtn);
+
+        var collapsedContainer = document.createElement('div');
+        collapsedContainer.setAttribute('class', 'item__collapsed');
+        collapsedContainer.setAttribute('id', `item__collapsed-${item.uid}`);
+
+        if (imageElt !== null) {
+            collapsedContainer.appendChild(imageElt);
+        }
+
+        if (videoElt !== null) {
+            collapsedContainer.appendChild(videoElt);
+        }
+
+        if (locationElt !== null) {
+            collapsedContainer.appendChild(locationElt);
+        }
+
+        element.appendChild(collapsedContainer);
 
         return element;
+    },
+
+    getSimpleElement: function (tagName, key, text) {
+        if (text === "") {
+            return null;
+        }
+
+        var element = document.createElement(tagName);
+        element.setAttribute('class', `item__${key}`);
+        element.innerText = text;
+
+        return element;
+    },
+
+    getMediaElement: function (key, source) {
+        if (!source) {
+            return null;
+        }
+
+        var tagName;
+        switch (key) {
+            case "image":
+                tagName = "img";
+                break;
+            case "video":
+                tagName = "video";
+                break;
+        }
+
+        var element = document.createElement(tagName);
+        element.setAttribute('class', `item__${key}`);
+        element.setAttribute('src', source);
+
+        return element;
+    },
+
+    getLocationElement: function (locationData, uid) {
+        if (locationData === undefined) {
+            return;
+        }
+
+        var element = document.createElement('div');
+        element.setAttribute('class', 'map item__location');
+        element.setAttribute('id', `item__location-${uid}`);
+        element.setAttribute('data-lat', locationData.latitude);
+        element.setAttribute('data-lon', locationData.longitude);
+
+        return element;
+    },
+
+    addCollapseEventListener: function (collapseElt) {
+        collapseElt.addEventListener('click', function () {
+            var targetSelector = this.getAttribute('data-target'),
+                targetElt = this.parentElement.querySelector(targetSelector);
+
+            if (targetElt !== null) {
+                targetElt.classList.toggle('item__collapsed--visible');
+
+                var map = targetElt.querySelector('.item__location');
+                if (map) {
+                    map._leaflet_map.invalidateSize();
+                }
+
+                this.innerText = this.innerText === "Show Details"  ? "Hide Details"
+                                                                    : "Show Details";
+            }
+        });
+    },
+
+    initItemMap: function (item) {
+        var mapElt = this.container.querySelector(`#item__location-${item.uid}`),
+            lat = parseFloat(mapElt.getAttribute('data-lat')),
+            lon = parseFloat(mapElt.getAttribute('data-lon'));
+
+        geolocService.initMap(mapElt, lat, lon);
     }
 }
 

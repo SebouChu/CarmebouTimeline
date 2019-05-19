@@ -17,6 +17,8 @@
         <div class="app">
             <div id="itemFormWrapper">
                 <form id="itemForm">
+                    <input type="text" name="title" id="titleInput" placeholder="Title">
+
                     <div class="form-nav">
                       <button type="button" class="form-nav-item" id="textTabBtn" data-target="#textTab">Texte</button>
                       <button type="button" class="form-nav-item" id="pictureTabBtn" data-target="#pictureTab">Image</button>
@@ -26,7 +28,7 @@
 
                     <div class="form-tabs">
                       <div class="form-tab" id="textTab">
-                        <input type="text" name="text" id="textInput">
+                        <textarea name="content" id="contentInput"></textarea>
                       </div>
                       <div class="form-tab" id="pictureTab">
                         <button type="button" data-source="CAMERA">Take Picture</button>

@@ -37,13 +37,15 @@ Ils sont persistés dans le LocalStorage et affichés dans la timeline du plus r
 
 ```json
 {
-  "text": "Lorem ipsum dolor sit amet, consectetur adipisicing elit...",
+  "title": "Lorem ipsum.",
+  "content": "Lorem ipsum dolor sit amet, consectetur adipisicing elit...",
   "video": "file:///storage/emulated/0/...",
-  "image": "data:image/jpeg;base64...",
+  "picture": "data:image/jpeg;base64...",
   "location": {
     "latitude": 42,
     "longitude": -1,
   },
+  "uid": "50c2d330cf",
   "createdAt": "2019-04-30T15:41:41.859Z"
 }
 ```
