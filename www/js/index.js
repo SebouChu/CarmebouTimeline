@@ -26,6 +26,8 @@ var storageService = {
 
         this.data.push(itemData)
         this.persist();
+
+        return itemData;
     },
 
     generateUid: function () {
@@ -306,7 +308,10 @@ var formManager = {
         }
 
         var formData = this.processData(rawFormData);
-        storageService.addItem(formData);
+        var item = storageService.addItem(formData);
+
+        timelineManager.addItem(item);
+        this.resetForm();
     },
 
     processData: function (rawData) {
@@ -324,6 +329,32 @@ var formManager = {
         }
 
         return processedData;
+    },
+
+    resetForm: function () {
+        var i;
+        for (i = 0; i < this.inputs.length; i += 1) {
+            this.inputs[i].value = "";
+        }
+
+        var previewImg = this.form.querySelector('#pictureTab img');
+        previewImg.src = "#";
+
+        var previewVideo = this.form.querySelector('#videoTab video');
+        previewVideo.src = "#";
+
+        var locationInfos = this.form.querySelector('#locationTab .location-infos');
+        locationInfos.querySelector('p').innerText = "";
+        var previewMap = locationInfos.querySelector('#map');
+        if (previewMap._leaflet_map) {
+            previewMap._leaflet_map.remove();
+            previewMap._leaflet_map = null;
+        }
+
+        var tabs = this.form.querySelectorAll('.form-tab');
+        tabs.forEach(tab => tab.classList.remove('active'));
+
+        formManager.wrapper.classList.toggle('active');
     }
 }
 
