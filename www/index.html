@@ -1,71 +1,80 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta name="format-detection" content="telephone=no">
-        <meta name="msapplication-tap-highlight" content="no">
-        <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
-        <title>CarmebouTimeline</title>
-        <link rel="stylesheet" type="text/css" href="css/index.css">
-        <link rel="stylesheet"  href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
-                                integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
-                                crossorigin=""/>
-        <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
-                integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
-                crossorigin=""></script>
-    </head>
-    <body>
-        <div class="app">
-            <div id="itemFormWrapper">
-                <form id="itemForm">
-                    <input type="text" name="title" id="titleInput" placeholder="Title">
+<head>
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
+    <title>CarmebouTimeline</title>
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
+          integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
+          crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
+            integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
+            crossorigin=""></script>
+</head>
+<body>
+<div class="app">
+    <div id="itemFormWrapper">
+        <form id="itemForm">
+            <input type="text" name="title" id="titleInput" placeholder="Title">
 
-                    <div class="form-nav">
-                      <button type="button" class="form-nav-item" id="textTabBtn" data-target="#textTab">Texte</button>
-                      <button type="button" class="form-nav-item" id="pictureTabBtn" data-target="#pictureTab">Image</button>
-                      <button type="button" class="form-nav-item" id="videoTabBtn" data-target="#videoTab">Vidéo</button>
-                      <button type="button" class="form-nav-item" id="locationTabBtn" data-target="#locationTab">Localisation</button>
+            <div class="form-nav">
+                <button type="button" class="form-nav-item" id="textTabBtn" data-target="#textTab">Texte</button>
+                <button type="button" class="form-nav-item" id="pictureTabBtn" data-target="#pictureTab">Image</button>
+                <button type="button" class="form-nav-item" id="videoTabBtn" data-target="#videoTab">Vidéo</button>
+                <button type="button" class="form-nav-item" id="locationTabBtn" data-target="#locationTab">
+                    Localisation
+                </button>
+            </div>
+            <hr>
+            <div class="form-tabs">
+                <div class="form-tab" id="textTab">
+                    <textarea name="content" id="contentInput"></textarea>
+                    <hr>
+                </div>
+                <div class="form-tab" id="pictureTab">
+                    <button type="button" data-source="CAMERA">Take Picture</button>
+                    <button type="button" data-source="SAVEDPHOTOALBUM">Select from Gallery</button>
+                    <img class="img-fluid" id="target-img" src="#" alt="">
+
+                    <input type="hidden" name="picture" id="pictureInput">
+                    <hr>
+                </div>
+                <div class="form-tab" id="videoTab">
+                    <button type="button">Capture video</button>
+                    <video src="#" controls width="250"></video>
+
+                    <input type="hidden" name="video" id="videoInput">
+                    <hr>
+                </div>
+                <div class="form-tab" id="locationTab">
+                    <button type="button">Geolocate me</button>
+                    <div class="location-infos">
+                        <p></p>
+                        <div class="map" id="map"></div>
                     </div>
 
-                    <div class="form-tabs">
-                      <div class="form-tab" id="textTab">
-                        <textarea name="content" id="contentInput"></textarea>
-                      </div>
-                      <div class="form-tab" id="pictureTab">
-                        <button type="button" data-source="CAMERA">Take Picture</button>
-                        <button type="button" data-source="SAVEDPHOTOALBUM">Select from Gallery</button>
-                        <img class="img-fluid" id="target-img" src="#" alt="">
-
-                        <input type="hidden" name="picture" id="pictureInput">
-                      </div>
-                      <div class="form-tab" id="videoTab">
-                        <button type="button">Capture video</button>
-                        <video src="#" controls width="250"></video>
-
-                        <input type="hidden" name="video" id="videoInput">
-                      </div>
-                      <div class="form-tab" id="locationTab">
-                        <button type="button">Geolocate me</button>
-                        <div class="location-infos">
-                          <p></p>
-                          <div class="map" id="map"></div>
-                        </div>
-
-                        <input type="hidden" name="latitude" id="latitudeInput">
-                        <input type="hidden" name="longitude" id="longitudeInput">
-                      </div>
-                    </div>
-
-                    <div class="form-actions">
-                      <input type="submit" value="Envoyer">
-                    </div>
-                </form>
+                    <input type="hidden" name="latitude" id="latitudeInput">
+                    <input type="hidden" name="longitude" id="longitudeInput">
+                    <hr>
+                </div>
             </div>
 
-            <div id="timeline"></div>
+            <div class="form-actions">
+                <input type="submit" value="Envoyer">
+            </div>
+        </form>
+    </div>
 
-            <a href="#" id="showFormButton">+</a>
-        </div>
-        <script type="text/javascript" src="cordova.js"></script>
-        <script type="text/javascript" src="js/index.js"></script>
-    </body>
+    <div id="timeline"></div>
+
+    <div id="menu">
+        <h1>Notre super site</h1>
+        <a href="#" id="showFormButton"></a>
+    </div>
+</div>
+<script type="text/javascript" src="cordova.js"></script>
+<script type="text/javascript" src="js/index.js"></script>
+</body>
 </html>
