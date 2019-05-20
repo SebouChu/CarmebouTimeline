@@ -468,6 +468,9 @@ var timelineManager = {
 
         var element = document.createElement(tagName);
         element.setAttribute('class', `item__${key}`);
+        if (key === "video") {
+            element.setAttribute('controls', 'controls');
+        }
         element.setAttribute('src', source);
 
         return element;
@@ -475,7 +478,7 @@ var timelineManager = {
 
     getLocationElement: function (locationData, uid) {
         if (locationData === undefined) {
-            return;
+            return null;
         }
 
         var element = document.createElement('div');
