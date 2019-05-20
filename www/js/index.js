@@ -30,6 +30,14 @@ var storageService = {
         return itemData;
     },
 
+    removeItem: function (itemUid) {
+        var index = this.data.findIndex(item => item.uid === itemUid);
+        if (index !== -1) {
+            this.data.splice(index, 1);
+            this.persist();
+        }
+    },
+
     generateUid: function () {
         var arr = new Uint8Array(5),
             hexArr = [],
@@ -389,10 +397,20 @@ var timelineManager = {
         }
     },
 
+    removeItem: function (itemUid) {
+        var itemElement = this.container.querySelector(`#timeline__item-${itemUid}`);
+        if (itemElement !== null) {
+            itemElement.parentNode.removeChild(itemElement);
+        }
+    },
+
     createItemElement: function (item) {
         var element = document.createElement('div');
         element.setAttribute('class', 'timeline__item');
         element.setAttribute('id', `timeline__item-${item.uid}`);
+
+        var deleteBtn = this.getDeleteButton(item.uid);
+        element.appendChild(deleteBtn);
 
         var titleElt = this.getSimpleElement('h2', 'title', item.title);
         if (titleElt !== null) {
@@ -439,8 +457,23 @@ var timelineManager = {
         return element;
     },
 
+    getDeleteButton: function (uid) {
+        var button = document.createElement('a');
+        button.setAttribute('href', '#');
+        button.setAttribute('class', 'item__delete');
+        button.setAttribute('data-uid', uid);
+        button.innerHTML = "&times;";
+        button.addEventListener('click', function () {
+            var uid = this.getAttribute('data-uid');
+            storageService.removeItem(uid);
+            timelineManager.removeItem(uid);
+        });
+
+        return button;
+    },
+
     getSimpleElement: function (tagName, key, text) {
-        if (text === "") {
+        if (!text) {
             return null;
         }
 
