@@ -196,7 +196,7 @@ var formManager = {
                     pictureInput.value = imagePath;
                 });
             });
-        };
+        }
 
         this.inputs.push(pictureInput);
     },
@@ -346,6 +346,12 @@ function showTimeline() {
         bullet.classList.add('bullet');
         container.appendChild(bullet);
 
+        let text_container = document.createElement('div');
+        text_container.classList.add('text-container');
+
+        let image_container = document.createElement('div');
+        image_container.classList.add('image-container');
+
         if (elem.titre !== "") {
             let title = document.createElement('h2');
             title.append(elem.titre);
@@ -355,28 +361,30 @@ function showTimeline() {
         if (elem.description !== "") {
             let description = document.createElement('p');
             description.append(elem.description);
-            container.appendChild(description);
+            text_container.appendChild(description);
         }
 
         if (elem.image !== "") {
             let image = document.createElement('img');
             image.setAttribute('src', elem.image);
-            container.appendChild(image);
+            image_container.appendChild(image);
         }
 
         if (elem.video !== "") {
             let video = document.createElement('video');
             video.setAttribute('src', elem.video);
-            container.appendChild(video);
+            image_container.appendChild(video);
         }
 
         if (elem.localisation !== "") {
             let localisation = document.createElement('text');
             localisation.append(elem.localisation);
-            container.appendChild(localisation);
+            text_container.appendChild(localisation);
 
         }
 
+        container.appendChild(text_container);
+        container.appendChild(image_container);
         timeline.appendChild(container);
     })
 }
