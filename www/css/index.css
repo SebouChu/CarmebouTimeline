@@ -14,7 +14,7 @@ body {
     margin:0px;
     padding:0px;
     /* Padding to avoid the "unsafe" areas behind notches in the screen */
-    padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-right, 0px);
+    padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
     width:100%;
 }
 
@@ -29,7 +29,7 @@ body {
     .app {
         background-position:left center;
         padding:75px 0px 75px 170px;  /* padding-top + padding-bottom + text area = image height */
-        margin:-90px 0px 0px -198px;  /* offset vertical: half of image height */
+        margin:-90px 0px 0px -170px;  /* offset vertical: half of image height */
                                       /* offset horizontal: half of image width and text area width */
     }
 }
@@ -93,13 +93,18 @@ h1 {
 }
 
 #showFormButton {
+    display: block;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
     width: 50px;
     height: 50px;
-    border-radius: 50%;
+    font-size: 24px;
+    line-height: 1.8;
+    color: white;
     background-color: red;
-    position: sticky;
-    display: block;
-    float: right;
+    border-radius: 50%;
+    text-decoration: none;
 }
 
 .form-tab:not(.active) {
@@ -116,28 +121,52 @@ video[src="#"] {
   display: none;
 }
 
-#map {
-  width: 100%;
-  height: 400px;
+.map {
+  width: 75%;
+  height: 300px;
+  margin: 0 auto;
+  border: 1px solid black;
 }
 
-.timeline-element {
-    position: relative;
-    height: 100px;
-    margin: 20px;
-    display: block;
-    background: rgba(0, 150, 0, 0.5);
-    padding: 20px;
-    border-radius: 5px;
+#timeline {
+  display: flex;
+  flex-direction: column-reverse;
+  padding: 20px;
 }
 
-.bullet {
-    width: 20px;
-    height: 20px;
-    position: absolute;
-    left: -10px;
-    top: 60px;
-    background: white;
-    border: 1px solid green;
-    border-radius: 50%;
+.timeline__item {
+  position: relative;
+  min-height: 100px;
+  background: rgba(0, 150, 0, 0.5);
+  padding: 10px 0;
+  margin: 5px 0;
+  border-radius: 5px;
+}
+
+.timeline__item::before {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: -10px;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border: 1px solid green;
+  border-radius: 50%;
+}
+
+.item__collapsed {
+  display: none;
+}
+
+.item__collapsed--visible {
+  display: block;
+}
+
+.item__image, .item__video {
+  display: block;
+  width: 75%;
+  margin: 0 auto;
 }

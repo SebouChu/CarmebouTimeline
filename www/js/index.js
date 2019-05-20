@@ -21,11 +21,26 @@ var storageService = {
     },
 
     addItem: function (itemData) {
+        itemData.uid = this.generateUid();
         itemData.createdAt = new Date();
 
         this.data.push(itemData)
-
         this.persist();
+
+        return itemData;
+    },
+
+    generateUid: function () {
+        var arr = new Uint8Array(5),
+            hexArr = [],
+            i;
+
+        (window.crypto || window.msCrypto).getRandomValues(arr);
+        for (i = 0; i < arr.length; i += 1) {
+            hexArr[i] = ('0' + arr[i].toString(16)).substr(-2);
+        }
+
+        return hexArr.join('');
     },
 
     persist: function () {
@@ -100,6 +115,20 @@ var geolocService = {
         );
     },
 
+    initMap: function (mapElt, lat, lon) {
+        var leafletMap = L.map(mapElt).setView([lat, lon], 11);
+        L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+            minZoom: 1,
+            maxZoom: 20
+        }).addTo(leafletMap);
+        L.marker([lat, lon]).addTo(leafletMap);
+        mapElt._leaflet_map = leafletMap;
+    },
+
+    reloadMap: function (mapElt) {
+        mapElt._leaflet_map.invalidateSize();
+    },
+
     alertError: function (error) {
         alert('Error code ' + error.code + ': ' + error.message);
     }
@@ -130,6 +159,7 @@ var formManager = {
         this.form.addEventListener('submit', this.handleSubmit.bind(this));
 
         this.initToggler();
+        this.initTitleInput();
         this.initNav();
         this.initTabs();
     },
@@ -165,14 +195,19 @@ var formManager = {
         this.initLocationTab();
     },
 
+    initTitleInput: function () {
+        var titleInput = this.form.querySelector('#titleInput');
+        this.inputs.push(titleInput);
+    },
+
     initTextTab: function () {
         var textTab = this.form.querySelector('#textTab');
         if (!textTab) {
             return;
         }
 
-        var textInput = textTab.querySelector('#textInput');
-        this.inputs.push(textInput);
+        var contentInput = textTab.querySelector('#contentInput');
+        this.inputs.push(contentInput);
     },
 
     initPictureTab: function () {
@@ -196,7 +231,7 @@ var formManager = {
                     pictureInput.value = imagePath;
                 });
             });
-        }
+        };
 
         this.inputs.push(pictureInput);
     },
@@ -238,8 +273,7 @@ var formManager = {
             longitudeInput = locationTab.querySelector('#longitudeInput'),
             actionBtn = locationTab.querySelector('button'),
             coordsParagraph = locationTab.querySelector('p'),
-            mapElt = locationTab.querySelector('#map'),
-            leafletMap;
+            mapElt = locationTab.querySelector('#map');
 
         actionBtn.addEventListener('click', function () {
             geolocService.geolocateUser(function (position) {
@@ -247,12 +281,7 @@ var formManager = {
                     lon = position.coords.longitude;
 
                 coordsParagraph.textContent = "Coords: " + lat + " / " + lon;
-                leafletMap = L.map(mapElt).setView([lat, lon], 11);
-                L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
-                    minZoom: 1,
-                    maxZoom: 20
-                }).addTo(leafletMap);
-                L.marker([lat, lon]).addTo(leafletMap);
+                geolocService.initMap(mapElt, lat, lon);
 
                 latitudeInput.value = lat;
                 longitudeInput.value = lon;
@@ -279,12 +308,16 @@ var formManager = {
         }
 
         var formData = this.processData(rawFormData);
-        storageService.addItem(formData);
+        var item = storageService.addItem(formData);
+
+        timelineManager.addItem(item);
+        this.resetForm();
     },
 
     processData: function (rawData) {
         var processedData = {};
-        processedData.text = rawData.text;
+        processedData.title = rawData.title;
+        processedData.content = rawData.content;
         processedData.picture = rawData.picture;
         processedData.video = rawData.video;
 
@@ -296,8 +329,195 @@ var formManager = {
         }
 
         return processedData;
+    },
+
+    resetForm: function () {
+        var i;
+        for (i = 0; i < this.inputs.length; i += 1) {
+            this.inputs[i].value = "";
+        }
+
+        var previewImg = this.form.querySelector('#pictureTab img');
+        previewImg.src = "#";
+
+        var previewVideo = this.form.querySelector('#videoTab video');
+        previewVideo.src = "#";
+
+        var locationInfos = this.form.querySelector('#locationTab .location-infos');
+        locationInfos.querySelector('p').innerText = "";
+        var previewMap = locationInfos.querySelector('#map');
+        if (previewMap._leaflet_map) {
+            previewMap._leaflet_map.remove();
+            previewMap._leaflet_map = null;
+        }
+
+        var tabs = this.form.querySelectorAll('.form-tab');
+        tabs.forEach(tab => tab.classList.remove('active'));
+
+        formManager.wrapper.classList.toggle('active');
     }
 }
+
+
+//   _____ ___ __  __ _____ _     ___ _   _ _____
+//  |_   _|_ _|  \/  | ____| |   |_ _| \ | | ____|
+//    | |  | || |\/| |  _| | |    | ||  \| |  _|
+//    | |  | || |  | | |___| |___ | || |\  | |___
+//    |_| |___|_|  |_|_____|_____|___|_| \_|_____|
+
+var timelineManager = {
+    init: function () {
+        this.container = document.getElementById("timeline");
+        if (!this.container) {
+            return;
+        }
+
+        console.log('Init Timeline');
+
+        storageService.data.forEach(item => {
+            this.addItem(item);
+        });
+    },
+
+    addItem: function (item) {
+        console.log(`Adding item #${item.uid}`);
+        var itemElement = this.createItemElement(item);
+        this.container.appendChild(itemElement);
+
+        if (item.location !== undefined) {
+            this.initItemMap(item);
+        }
+    },
+
+    createItemElement: function (item) {
+        var element = document.createElement('div');
+        element.setAttribute('class', 'timeline__item');
+        element.setAttribute('id', `timeline__item-${item.uid}`);
+
+        var titleElt = this.getSimpleElement('h2', 'title', item.title);
+        if (titleElt !== null) {
+            element.appendChild(titleElt);
+        }
+
+        var contentElt = this.getSimpleElement('p', 'content', item.content);
+        if (contentElt !== null) {
+            element.appendChild(contentElt);
+        }
+
+        var imageElt = this.getMediaElement('image', item.picture);
+        var videoElt = this.getMediaElement('video', item.video);
+        var locationElt = this.getLocationElement(item.location, item.uid);
+        if (!imageElt && !videoElt && !locationElt) {
+            return element;
+        }
+
+        var collapseBtn = document.createElement('button');
+        collapseBtn.setAttribute('type', 'button');
+        collapseBtn.setAttribute('data-target', `#item__collapsed-${item.uid}`);
+        collapseBtn.innerText = "Show Details";
+        this.addCollapseEventListener(collapseBtn);
+        element.appendChild(collapseBtn);
+
+        var collapsedContainer = document.createElement('div');
+        collapsedContainer.setAttribute('class', 'item__collapsed');
+        collapsedContainer.setAttribute('id', `item__collapsed-${item.uid}`);
+
+        if (imageElt !== null) {
+            collapsedContainer.appendChild(imageElt);
+        }
+
+        if (videoElt !== null) {
+            collapsedContainer.appendChild(videoElt);
+        }
+
+        if (locationElt !== null) {
+            collapsedContainer.appendChild(locationElt);
+        }
+
+        element.appendChild(collapsedContainer);
+
+        return element;
+    },
+
+    getSimpleElement: function (tagName, key, text) {
+        if (text === "") {
+            return null;
+        }
+
+        var element = document.createElement(tagName);
+        element.setAttribute('class', `item__${key}`);
+        element.innerText = text;
+
+        return element;
+    },
+
+    getMediaElement: function (key, source) {
+        if (!source) {
+            return null;
+        }
+
+        var tagName;
+        switch (key) {
+            case "image":
+                tagName = "img";
+                break;
+            case "video":
+                tagName = "video";
+                break;
+        }
+
+        var element = document.createElement(tagName);
+        element.setAttribute('class', `item__${key}`);
+        if (key === "video") {
+            element.setAttribute('controls', 'controls');
+        }
+        element.setAttribute('src', source);
+
+        return element;
+    },
+
+    getLocationElement: function (locationData, uid) {
+        if (locationData === undefined) {
+            return null;
+        }
+
+        var element = document.createElement('div');
+        element.setAttribute('class', 'map item__location');
+        element.setAttribute('id', `item__location-${uid}`);
+        element.setAttribute('data-lat', locationData.latitude);
+        element.setAttribute('data-lon', locationData.longitude);
+
+        return element;
+    },
+
+    addCollapseEventListener: function (collapseElt) {
+        collapseElt.addEventListener('click', function () {
+            var targetSelector = this.getAttribute('data-target'),
+                targetElt = this.parentElement.querySelector(targetSelector);
+
+            if (targetElt !== null) {
+                targetElt.classList.toggle('item__collapsed--visible');
+
+                var map = targetElt.querySelector('.item__location');
+                if (map) {
+                    map._leaflet_map.invalidateSize();
+                }
+
+                this.innerText = this.innerText === "Show Details"  ? "Hide Details"
+                                                                    : "Show Details";
+            }
+        });
+    },
+
+    initItemMap: function (item) {
+        var mapElt = this.container.querySelector(`#item__location-${item.uid}`),
+            lat = parseFloat(mapElt.getAttribute('data-lat')),
+            lon = parseFloat(mapElt.getAttribute('data-lon'));
+
+        geolocService.initMap(mapElt, lat, lon);
+    }
+}
+
 
 //      _    ____  ____  _     ___ ____    _  _____ ___ ___  _   _
 //     / \  |  _ \|  _ \| |   |_ _/ ___|  / \|_   _|_ _/ _ \| \ | |
@@ -314,79 +534,8 @@ var app = {
 
     onDeviceReady: function () {
         formManager.init();
-        showTimeline();
+        timelineManager.init();
     }
 };
-
-function showTimeline() {
-    let elements = [
-        {
-            titre: "banane",
-            description: "la cure de banane c'est bien",
-            image: "",
-            video: "",
-            localisation: ""
-        },
-        {
-            titre: "patate",
-            description: "la cure de patates c'est bien",
-            image: "https://helpx.adobe.com/content/dam/help/en/stock/how-to/visual-reverse-image-search/_jcr_content/main-pars/image/visual-reverse-image-search-v2_1000x560.jpg",
-            video: "",
-            localisation: ""
-        }
-    ];
-
-    let timeline = document.getElementById("timeline");
-
-    elements.forEach((elem) => {
-        let container = document.createElement('div');
-        container.classList.add('timeline-element');
-
-        let bullet = document.createElement('div');
-        bullet.classList.add('bullet');
-        container.appendChild(bullet);
-
-        let text_container = document.createElement('div');
-        text_container.classList.add('text-container');
-
-        let image_container = document.createElement('div');
-        image_container.classList.add('image-container');
-
-        if (elem.titre !== "") {
-            let title = document.createElement('h2');
-            title.append(elem.titre);
-            container.appendChild(title);
-        }
-
-        if (elem.description !== "") {
-            let description = document.createElement('p');
-            description.append(elem.description);
-            text_container.appendChild(description);
-        }
-
-        if (elem.image !== "") {
-            let image = document.createElement('img');
-            image.setAttribute('src', elem.image);
-            image_container.appendChild(image);
-        }
-
-        if (elem.video !== "") {
-            let video = document.createElement('video');
-            video.setAttribute('src', elem.video);
-            image_container.appendChild(video);
-        }
-
-        if (elem.localisation !== "") {
-            let localisation = document.createElement('text');
-            localisation.append(elem.localisation);
-            text_container.appendChild(localisation);
-
-        }
-
-        container.appendChild(text_container);
-        container.appendChild(image_container);
-        timeline.appendChild(container);
-    })
-}
 
 app.initialize();
