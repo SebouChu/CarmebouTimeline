@@ -1,6 +1,6 @@
 # CarmebouTimeline
 
-Application mobile powered by Cordova.
+Application mobile *powered by Cordova* et dévelopée par BAUMÉ Aurore & GAYA Sébastien.
 
 ## Features
 
