@@ -284,12 +284,16 @@ var formManager = {
             mapElt = locationTab.querySelector('#map');
 
         actionBtn.addEventListener('click', function () {
+            this.classList.toggle('loading');
+
+            var self = this;
             geolocService.geolocateUser(function (position) {
                 var lat = position.coords.latitude,
                     lon = position.coords.longitude;
 
                 coordsParagraph.textContent = "Coords: " + lat + " / " + lon;
                 geolocService.initMap(mapElt, lat, lon);
+                self.classList.toggle('loading');
 
                 latitudeInput.value = lat;
                 longitudeInput.value = lon;
