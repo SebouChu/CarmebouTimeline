@@ -231,9 +231,13 @@ var formManager = {
 
         for (i = 0; i < actionBtns.length; i += 1) {
             actionBtns[i].addEventListener('click', function () {
+                this.classList.toggle('loading');
                 var sourceType = this.getAttribute('data-source');
+                var self = this;
+
                 cameraService.takePicture(sourceType, function (imageData) {
                     var imagePath = "data:image/jpeg;base64," + imageData;
+                    self.classList.toggle('loading');
 
                     previewImg.src = imagePath;
                     pictureInput.value = imagePath;
@@ -255,8 +259,13 @@ var formManager = {
             previewVideo = videoTab.querySelector('video');
 
         actionBtn.addEventListener('click', function () {
+            this.classList.toggle('loading');
+            var self = this;
+
             videoService.captureVideo(function (mediaFiles) {
                 var capturedVideo = mediaFiles[0];
+
+                self.classList.toggle('loading');
                 if (!capturedVideo) {
                     return;
                 }
